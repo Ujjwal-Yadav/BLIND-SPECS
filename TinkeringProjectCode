@@ -1,0 +1,72 @@
+#include <VirtualWire.h>
+#define trigPin 3
+#define echoPin 2
+int Buzzer = 12; 
+
+void setup() {
+        Serial.begin (9600); 
+        //Define the output and input objects(devices)
+        vw_set_rx_pin(A0);//connect the receiver data pin to pin 12
+        vw_setup(4000);  // speed of data transfer in bps, maxes out at 10000
+        pinMode(trigPin, OUTPUT); 
+        pinMode(echoPin, INPUT);
+        pinMode(Buzzer, OUTPUT);
+        vw_rx_start();       // Start the receiver PLL running
+        for (int i = 0; i < Buzzer; i++)  ;
+}
+
+void loop() {
+
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    int duration = pulseIn(echoPin, HIGH);
+    int distance = (duration/2) / 29.1;
+    //when distance is greater than or equal to 200 OR less than or equal to 0,the buzzer and LED are off
+    
+    if (distance >= 100 || distance <= 0) 
+        {
+        Serial.println("no object detected");
+        digitalWrite(Buzzer,LOW);
+        noTone(Buzzer);
+        }
+  else {
+        Serial.println("object detected \n");
+        Serial.print("distance= ");              
+        Serial.print(distance);        //prints the distance if it is between the range 0 to 200
+        digitalWrite(Buzzer,HIGH);
+        if(distance<=20)
+        {
+            tone(Buzzer,261);
+        }    
+        else if(distance<=30){
+          tone(Buzzer,293);
+        }
+        else if(distance<=40){
+          tone(Buzzer,329);
+        }
+        else if(distance<=50){
+          tone(Buzzer,349);
+        }
+        else if(distance<=60){
+          tone(Buzzer,392);
+        }
+        else if(distance<=70){
+          tone(Buzzer,440);
+        }
+        else if(distance<=80){
+          tone(Buzzer,493);
+        }
+        else{
+          tone(Buzzer,523);
+        }
+        delay(200);
+  }
+  uint8_t buf[VW_MAX_MESSAGE_LEN];
+  uint8_t buflen = VW_MAX_MESSAGE_LEN;
+  if(vw_get_message(buf, &buflen))
+  {
+    distance=40;
+    digitalWrite(Buzzer,HIGH);
+  }
+}
